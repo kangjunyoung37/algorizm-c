@@ -1,10 +1,15 @@
 #include<iostream>
 #include<vector>
 #include<algorithm>
+#include<tuple>
 #define MAX_V 100002
 using namespace std;
 int parent[MAX_V];
-vector<int> map[MAX_V];
+vector<pair<int, int>> X;
+vector<pair<int, int>> Y;
+vector<pair<int, int>> Z;
+vector<tuple<int, int, int>> map;
+int result = 0;
 
 int FindParent(int start) {
 
@@ -34,54 +39,46 @@ int main()
 		int x, y, z;
 		cin >> x >> y >> z;
 
-		map[i].push_back(x);
-		map[i].push_back(y);
-		map[i].push_back(z);
+		X.push_back(make_pair(x,i));
+		Y.push_back(make_pair(y,i));
+		Z.push_back(make_pair(z,i));
 
 		parent[i] = i;
 	}
-	vector<vector<int>> impo;
 
 
 	//for (int i = 0; i < N; i++) 출력하기
 	//{
 	//	cout << map[i][0] <<" " << map[i][1]<<" " << map[i][2] << "\n";
 	//}
-	vector<int> exam(3, 0);
-	for (int i = 0; i < N; i++)
+	sort(X.begin(), X.end());
+	sort(Y.begin(), Y.end());
+	sort(Z.begin(), Z.end());
+
+	for (int i = 0; i < N-1; i++)
 	{
-		for (int j = i + 1; j < N; j++)
-		{
-			int x1 = map[i][0];
-			int y1 = map[i][1];
-			int z1 = map[i][2];
+		map.push_back({ X[i + 1].first - X[i].first,X[i].second,X[i + 1].second });
+		map.push_back({ Y[i + 1].first - Y[i].first,Y[i].second,Y[i + 1].second });
+		map.push_back({ Z[i + 1].first - Z[i].first,Z[i].second,Z[i + 1].second });
 
-			int x2 = map[j][0];
-			int y2 = map[j][1];
-			int z2 = map[j][2];
-
-
-			int distance = min(min(abs(x1 - x2), abs(y1 - y2)), abs(z1 - z2));
-
-			exam[0] = distance;
-			exam[1] = i;
-			exam[2] = j;
-
-			impo.push_back(exam);
-		}
 	}
-	sort(impo.begin(), impo.end());
+	sort(map.begin(), map.end());
 
-	for (int i = 0; i < impo.size(); i++)
+	for (int i = 0; i < map.size(); i++)
 	{
-		int a = FindParent(impo[i][1]);
-		int b = FindParent(impo[i][2]);
-		if (a == b)
+		int a = get<0>(map[i]);
+		int b = get<1>(map[i]);
+		int c = get<2>(map[i]);
+
+		int parentB = FindParent(b);
+		int parentC = FindParent(c);
+
+		if (parentB == parentC)
 		{
 			continue;
 		}
-		Union_(a, b);
-		result += impo[i][0];
+		Union_(parentB, parentC);
+		result += a;
 
 	}
 	cout << result;
