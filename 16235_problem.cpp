@@ -3,154 +3,139 @@
 #include<queue>
 #include<algorithm>
 using namespace std;
+vector<int> map[11][11];
 int N, M, K;
 int dx[8] = { 1,1,1,0,0,-1,-1,-1 };
 int dy[8] = { 1,0,-1,1,-1,1,0,-1 };
-vector<int> map[11][11];
-int winter[11][11];
 int tree[11][11];
-queue<pair<int, int>> pos;
-
-void simul(vector<int> board[11][11])
+int wintertree[11][11];
+struct dead
 {
-	int a = pos.size();
-	while (a > 0)
+	int x;
+	int y;
+	int year;
+};
+vector<dead> a;
+void spring()
+{
+	for (int i = 0; i < N; i++)
 	{
-		a--;
-		int x = pos.front().first;
-		int y = pos.front().second;
-		pos.pop();
-		int sum = 0;
-		bool isgo = false;
-		sort(board[x][y].begin(), board[x][y].end());
-		for (int k = 0; k < board[x][y].size(); k++)
+		for (int j = 0; j < N; j++)
 		{
-			
-			if (board[x][y][k] == 0)
-				continue;
-			
-			if (board[x][y][k] <= tree[x][y])
-			{
-				tree[x][y] -= board[x][y][k];
-				map[x][y][k] += 1;
-				isgo = true;
-			}
-			else
-			{
-				sum += (board[x][y][k] / 2);
-				map[x][y][k] = 0;
-			}		
- 		}
-		/*if (isgo)
-		{
-			pos.push({ x,y });
-		}*/
-
-		tree[x][y] += sum;
-		
-
-		
-		for (int k = 0; k < map[x][y].size(); k++)
-		{
-			if (map[x][y][k] == 0)
-				continue;
-			if (map[x][y][k] % 5 == 0)
-			{
-				for (int i = 0;i < 8; i++)
-				{
-					int cdx = x + dx[i];
-					int cdy = y + dy[i];
-					if (cdx < 0 || cdy < 0 || cdy >= N || cdx >= N)
-					{
-						continue;
-					}
-					map[cdx][cdy].push_back(1);
-					
-				}
-			}
+			sort(map[i][j].begin(), map[i][j].end());
 		}
-		
 	}
 	for (int i = 0; i < N; i++)
 	{
 		for (int j = 0; j < N; j++)
 		{
-			tree[i][j] = tree[i][j] + winter[i][j];
+			for (int k = 0; k < map[i][j].size();k++)
+			{
+				if (map[i][j][k] <= tree[i][j])
+				{
+					tree[i][j] -= map[i][j][k];
+					map[i][j][k] += 1;
+				}
+				else
+				{
+					a.push_back({ i,j,map[i][j][k] });
+					map[i][j].erase(map[i][j].begin() + k);
+					k--;
+				}
+			}
 		}
 	}
-
-
+}
+void summer()
+{
+	for (int i = 0;i < a.size(); i++)
+	{
+		int x = a[i].x;
+		int y = a[i].y;
+		tree[x][y] += (a[i].year / 2);
+	}
+	a.clear();a.resize(0);
+}
+void fall()
+{
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < N; j++)
+		{
+			for (int k = 0; k < map[i][j].size(); k++)
+			{
+				if (map[i][j][k] >= 5 && map[i][j][k] % 5 == 0)
+				{
+					for (int m = 0; m < 8; m++)
+					{
+						int cdx = i + dx[m];
+						int cdy = j + dy[m];
+						if (cdx < 0 || cdy < 0 || cdx >= N || cdy >= N)
+						{
+							continue;
+						}
+						map[cdx][cdy].push_back(1);
+					}
+				}
+			}
+		}
+	}
+}
+void winter()
+{
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0;j < N; j++)
+		{
+			tree[i][j] += wintertree[i][j];
+		}
+	}
 }
 int main()
 {
 	ios_base::sync_with_stdio(false);
 	cin.tie(0);cout.tie(0);
 	cin >> N >> M >> K;
-	
 	for (int i = 0; i < N; i++)
 	{
 		for (int j = 0; j < N; j++)
 		{
-			cin >> winter[i][j];
 			tree[i][j] = 5;
+			cin >> wintertree[i][j];
 		}
 	}
 	for (int i = 0; i < M; i++)
 	{
-		int x, y, z;
-		cin >> x >> y >> z;
-		map[x-1][y-1].push_back(z);
-		//pos.push({ x-1, y-1 });
+		int x, y, year;
+		cin >> x >> y >> year;
+		map[x - 1][y - 1].push_back(year);
 	}
-	for (int k = 0; k < K; k++)
+	while (K>0)
 	{
-		for (int i = 0; i < N; i++)
-		{
-			for (int j = 0; j < N; j++)
-			{
-				if (map[i][j].size() > 0)
-				{
-					pos.push({ i,j });
-				}
-			}
-		}
-		simul(map);
+		K--;
+		spring();
+		summer();
+		fall();
+		winter();
 	}
 	int ans = 0;
-	
+	//for (int i = 0; i < N; i++)
+	//{
+	//	for (int j = 0; j < N; j++)
+	//	{
+	//		for (int k = 0; k < map[i][j].size(); k++)
+	//		{
+	//			cout << i << "¿Í" << j << ":" << " " << map[i][j][k] << " ";
+	//		}
+	//		cout << "\n";
+	//	}
+	//}
 	for (int i = 0; i < N; i++)
 	{
 		for (int j = 0; j < N; j++)
 		{
-			for (int k = 0; k < map[i][j].size();k++)
-			{
-				if (map[i][j][k] != 0) 
-				{
-					ans += 1;
-				}
-			}
-			
+			ans += map[i][j].size();
 		}
-	}
-	for (int i = 0; i < N; i++)
-	{
-		for (int j = 0; j < N; j++)
-		{
-			cout << tree[i][j] << " ";
-		}
-		cout << "\n";
-	}
-	for (int i = 0; i < N; i++)
-	{
-		for (int j = 0; j < N; j++)
-		{
-			for (int k = 0; k < map[i][j].size();k++)
-			{
-				cout << i << "¿Í" << j << ":" << map[i][j][k] << "  ";
-			}
-			cout << "\n";
-		}
-		cout << "\n";
 	}
 	cout << ans;
 }
