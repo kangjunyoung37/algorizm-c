@@ -1,71 +1,59 @@
-#include <iostream>
-#include <vector>
-#include <queue>
-#include <string>
+#include<iostream>
+#include<vector>
+#include<queue>
+#define INF 10000000001
 using namespace std;
 
-int N, M;
 
-int main() {
+vector<pair<int, long long>> map[10001];
+int main()
+{
+	ios_base::sync_with_stdio(false);
+	int N, M;
+	cin >> N >> M;
+	for (int i = 0; i < M; i++)
+	{
+		int x, y, d;
+		cin >> x >> y >> d;
+		map[x].push_back({ y,d });
+		map[y].push_back({ x,d });
 
-    ios_base::sync_with_stdio(0);
-    cin.tie(0);
-    cout.tie(0);
+	}
+	int A, B;
+	cin >> A >> B;
+	long long left = 0, right = 10000000001;
+	while (left+1 < right)
+	{
+		int mid = (left + right) / 2;
+		vector<long long> dist(N + 1, INF);
+		bool visited[10005] = { false };
+		priority_queue<pair<long long, int>> q;
 
-    cin >> N >> M;
-
-    vector<pair<int, int>> v[N + 2];
-    vector<bool> isVisited(N + 1, false);
-    int A, B, C;
-    int MAX = 0;
-    int from, to;
-
-    for (int i = 0; i < M; i++) {
-        cin >> A >> B >> C;
-        v[A].emplace_back(B, C);
-        v[B].emplace_back(A, C);
-        MAX = max(MAX, C);
-    }
-    cin >> from >> to;
-
-    int left = 0;
-    int right = MAX;
-
-    while (left <= right) {
-        int mid = (left + right) / 2; // 수송 가능한 최소값
-
-        queue<int> q;
-        fill(isVisited.begin(), isVisited.end(), false);
-        //vector<bool> isVisited(N+1, false);
-        q.push(from);
-        isVisited[from] = true;
-        bool isTrue = false;
-
-        while (!q.empty()) {
-            int now = q.front();
-            q.pop();
-            //isVisited[now]=true;
-
-            if (now == to) {
-                isTrue = true;
-                break;
-            }
-
-            for (int i = 0; i < v[now].size(); i++) {
-                int next = v[now][i].first;
-                int cost = v[now][i].second;
-
-                if (isVisited[next] || cost < mid) continue;
-                // 방문한 적 있거나 최소 값도 못옮기면 skip
-                isVisited[next] = true;
-                q.push(next);
-            }
-        }
-
-        if (isTrue) left = mid + 1;
-        else right = mid - 1;
-    }
+		q.push({ 0,A });
+		dist[A] = 0;
+		while (!q.empty())
+		{
+			int cur = q.top().second;
+			q.pop();
+			if (visited[cur])
+				continue;
+			visited[cur] = true;
+			for (int i = 0; i < map[cur].size(); i++)
+			{
+				int weight = map[cur][i].first;
+				int next = map[cur][i].second;
+				if (!visited[next] && weight >= mid && dist[next] > dist[cur] + weight)
+				{
+					dist[next] = dist[cur] + weight;
+					q.push({ -dist[next],next });
+				}
+			}
+		}
+		if (dist[B] != INF) left = mid;
+		else right = mid;
+	}
+	cout << left;
 
 
-    cout << right;
+
 }
