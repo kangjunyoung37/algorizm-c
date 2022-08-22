@@ -9,8 +9,8 @@ char map[11][11];
 int dx[4] = { -1,1,0,0 };//»óÇÏÁÂ¿ì
 int dy[4] = { 0,0,-1,1 };
 int result;
-int Rvisit[11][11];
-int Bvisit[11][11];
+int visit[11][11][11][11];
+
 int Rx, Ry, Bx, By;
 bool is = false;
 queue<tuple<int, int, int, int, int>> q;
@@ -27,8 +27,7 @@ void move(int Rx ,int Ry,int Bx,int By, int cnt)
 		int QBx = get<2>(q.front());
 		int QBy = get<3>(q.front());
 		int totalcnt = get<4>(q.front());
-		Rvisit[QRx][QRy] = 1;
-		Bvisit[QBx][QBy] = 1;
+		visit[QRx][QRy][QBx][QBy] = 1;
 		q.pop();
 
 		if (totalcnt > 10)
@@ -104,7 +103,7 @@ void move(int Rx ,int Ry,int Bx,int By, int cnt)
 
 				}
 			}
-			if (Rvisit[Rdx][Rdy] == 0 && Bvisit[Bdx][Bdy]==0)
+			if (visit[Rdx][Rdy][Bdx][Bdy] == 0)
 			{
 				q.push({ Rdx,Rdy,Bdx,Bdy,totalcnt + 1 });
 			}
@@ -142,6 +141,7 @@ int main()
 			}
 		}
 	}
+
 	move(Rx, Ry, Bx, By, 0);
 	if (is)
 	{
