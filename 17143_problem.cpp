@@ -1,139 +1,104 @@
 #include<iostream>
 #include<vector>
+#include<algorithm>
 using namespace std;
 //위 아래 오른 왼
 int dx[5] = { 0,-1,1,0,0 };
 int dy[5] = { 0,0,0,1,-1 };
+
+
 struct shark {
 	int x;
 	int y;
 	int sharksize;
 	int direction;
 	int move;
+	int num;
 };
+struct King { int r = 1, c = 0; } fishKing;
+vector<shark> map[101][101] , sharks;
+
 
 int N, M, num, ans = 0;
-vector<shark> sharks;
-vector<shark> live;
-int map[101][101];
 
-
-void Move()
+bool comp(const shark& a, const shark& b)
 {
-	for (int i = 0; i < sharks.size(); i++)
-	{
-		int b = sharks[i].move;
-		while (b--)
-		{
-			sharks[i].x += dx[sharks[i].direction];
-			sharks[i].y += dy[sharks[i].direction];
-			if (sharks[i].x > N)
-			{
-				sharks[i].x = N - 1;
-				//sharks[i].direction -= 1;
-				sharks[i].direction = 1;
-				continue;
-			}
-			else if (sharks[i].x < 1)
-			{
-				sharks[i].x = 2;
-				//sharks[i].direction += 1;
-				sharks[i].direction = 2;
-
-				continue;
-			}
-			if (sharks[i].y > M)
-			{
-				sharks[i].y = M - 1;
-				//sharks[i].direction += 1;
-				sharks[i].direction = 4;
-				continue;
-			}
-			else if (sharks[i].y < 1)
-			{
-				sharks[i].y = 2;
-				//sharks[i].direction -= 1;
-				sharks[i].direction = 3;
-				continue;
-			}
-			
-
-		}
-	}
+	return a.sharksize > b.sharksize;
+}
+void updateshark()
+{
 	for (int i = 1; i <= N; i++)
 	{
 		for (int j = 1; j <= M; j++)
 		{
-			map[i][j] = -1;
+			map[i][j].clear();
 		}
 	}
-	live.clear();
 	for (int i = 0; i < sharks.size(); i++)
 	{
-		if (map[sharks[i].x][sharks[i].y] != -1)
+		map[sharks[i].x][sharks[i].y].push_back(sharks[i]);
+	}
+	sharks.clear();
+	for (int i = 1; i <= N; i++)
+	{
+		for (int j = 1; j <= M; j++)
 		{
-			if (sharks[map[sharks[i].x][sharks[i].y]].sharksize > sharks[i].sharksize)
+			if (!map[i][j].size())
 			{
 				continue;
 			}
-			else
-			{
-				live[map[sharks[i].x][sharks[i].y]] = sharks[i];
-			}
+			sort(map[i][j].begin(), map[i][j].end(), comp);
+			shark big = map[i][j][0];
+			map[i][j].clear();
+			map[i][j].push_back(big);
+			sharks.push_back(big);
+			
 		}
-		else
-		{
-			map[sharks[i].x][sharks[i].y] = live.size();
-			live.push_back(sharks[i]);
-		}
-		
 	}
 }
 
-void simul()
+void moveFishKing() {
+	fishKing.c++;
+}
+
+void Move()
 {
-	for (int i = 1; i <= N; i++)
-	{
-		for (int j = 1; j <= M; j++)
-		{
-			map[i][j] = -1;
+	for (auto& s : sharks) {
+		int nr = s.x;
+		int nc = s.y;
+		int iterRow = abs(dx[s.direction] * s.move);
+		int iterCol = abs(dy[s.direction] * s.move);
+		//위아래 초과
+		for (int i = 0; i < iterRow; i++) {
+			if (nr == 1 && s.direction == 1) s.direction = 2;
+			if (nr == N && s.direction == 2) s.direction = 1;
+			nr += dx[s.direction];
+		}
+		//좌우초과시 방향전환
+		for (int i = 0; i < iterCol; i++) {
+			if (nc == 1 && s.direction == 4) s.direction = 3;
+			if (nc == M && s.direction == 3) s.direction = 4;
+			nc += dy[s.direction];
+		}
+		s.x = nr;
+		s.y = nc;
+	}
+}
+void CatchPish()
+{
+	int sharkNum = -1;
+	for (int i = 1; i <= N; i++) {
+		if (map[i][fishKing.c].size()) {
+			ans += map[i][fishKing.c][0].sharksize;
+			sharkNum = map[i][fishKing.c][0].num;
+			map[i][fishKing.c].clear();
+			break;
 		}
 	}
-	for (int i = 0; i < sharks.size(); i++)
-	{
-		if (map[sharks[i].x][sharks[i].y] != -1)
-		{
-			if (sharks[map[sharks[i].x][sharks[i].y]].sharksize > sharks[i].sharksize)
-			{
-				continue;
-			}
-			else
-			{
-				live[map[sharks[i].x][sharks[i].y]] = sharks[i];
-			}
-		}
-		else
-		{
-			map[sharks[i].x][sharks[i].y] = live.size();
-			live.push_back(sharks[i]);
-		}
 
-	}
-	for (int i = 1; i <= M; i++)
-	{
-		for (int j = 1; j <= N; j++)
-		{
-
-			if (map[j][i] != -1)
-			{
-				ans += live[map[j][i]].sharksize;
-				live.erase(live.begin() + map[j][i]);
-				sharks = live;
-				break;
-			}
-		}
-		Move();
-
+	if (sharkNum >= 0) {
+		for (auto s = sharks.begin(); s != sharks.end(); s++)
+			if (s->num == sharkNum) { sharks.erase(s); break; }
 	}
 }
 int main()
@@ -141,23 +106,28 @@ int main()
 	ios_base::sync_with_stdio(false);
 	cin.tie(0);cout.tie(0);
 	cin >> N >> M >> num;
-
+	//sharks.resize(num);
 	for (int i = 0; i < num; i++)
 	{
-		int x, y, s, d, z;
-		cin >> x >> y >> s >> d >> z;
-		map[x][y] = i;
+		int x, y, move, diretion, sharksize;
+		cin >> x >> y >> move >> diretion >> sharksize;
 		shark a;
 		a.x = x;
 		a.y = y;
-		a.move = s;
-		a.direction = d;
-		a.sharksize = z;
+		a.move = move;
+		a.direction = diretion;
+		a.sharksize = sharksize;
+		a.num = i;
 		sharks.push_back(a);
-
+		map[x][y].push_back(a);
+		
 	}
-
-
-	simul();
+	for (int i = 1; i <= M; i++)
+	{
+		moveFishKing();
+		CatchPish();
+		Move();
+		updateshark();
+	}
 	cout << ans;
 }
