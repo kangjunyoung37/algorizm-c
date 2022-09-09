@@ -25,7 +25,6 @@ int FindParent(int son)
 	return Parent[son] = (FindParent(Parent[son]));
 }
 bool Union_(int a, int b)
-
 {
 	a = FindParent(a);
 	b = FindParent(b);
@@ -50,7 +49,7 @@ int main()
 		int x, y, temp;
 		cin >> x >> y >> temp;
 		map.push_back({ temp, x,y,});
-		map.push_back({ temp, y,x });
+		//map.push_back({ temp, y,x });
 	}
 	sort(map.begin(), map.end(),comp);
 	int quary, cnt, temperature;
@@ -69,23 +68,22 @@ int main()
 		for (int num = 0; num < map.size(); num++)
 		{
 
-			if (Union_(map[i].x, map[i].y))
+			if (Union_(map[num].x, map[num].y))
 			{
 				if (FindParent(x) == FindParent(y))
 				{
-					temperature = map[i].d;
+					temperature = map[num].d;
 					break;
 				}
 			}
-
 		}
 		
-		for (int i = 1; i <= N; i++)
-		{
-			cout << Parent[i] << " ";
+		//for (int i = 1; i <= N; i++)
+		//{
+		//	cout << Parent[i] << " ";
 
-		}
-		cout << "\n";
+		//}
+		//cout << "\n";
 		int resultParent = FindParent(x);
 		for (int i = 1; i <= N; i++)
 		{
@@ -94,6 +92,7 @@ int main()
 				cnt += 1;
 			}
 		}
+		
 		if (temperature == 0)
 		{
 			cout << -1 << "\n";
@@ -103,10 +102,6 @@ int main()
 			cout << temperature << " " << cnt << "\n";
 		}
 
-
-
 	}
 	
-
-
 }
