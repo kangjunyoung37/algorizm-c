@@ -1,34 +1,36 @@
-#include <iostream>
-#include <vector>
-#include <algorithm>
+#include<iostream>
+#include<vector>
+#include<algorithm>
 using namespace std;
-
-    long long solution(int n, vector<int> times) {
-        long long answer = 0;
-      
-        long long min_time = 1;
-  
-        long long max_time = (long long)*min_element(times.begin(), times.end()) * n;
-    
-        long long mid_time;
-        long long sum_n;
-
-        while (min_time <= max_time) {
-            mid_time = (min_time + max_time) / 2;
-            sum_n = 0;
-            for (int i = 0; i < times.size(); ++i) 
-                sum_n += mid_time / times[i];
-            if (sum_n >= n) { 
-                max_time = mid_time - 1; 
-                answer = mid_time;
-              
-            }
-            else 
-                min_time = mid_time + 1; 
-        }
-
-       
-        return answer;
-    }
-
-
+int main()
+{
+	ios_base::sync_with_stdio(false);
+	cin.tie(0); cout.tie(0);
+	int n;
+	vector<int> times;
+	long long answer = 0;
+	long long maxtime = (long long)*min_element(times.begin(),times.end()) * n;
+	long long mintime = 1;
+	long long sum;
+	while (mintime <= maxtime)
+	{
+		long long middletime = (maxtime + mintime) / 2;
+		sum = 0;
+		for (int i = 0; i < times.size(); i++)
+		{
+			sum += middletime / times[i];
+		}
+		if (sum >= n)
+		{
+			maxtime = middletime - 1;
+			answer = middletime;
+		}
+		else
+		{
+			mintime = middletime + 1;
+		}
+	}
+	
+	return answer;
+	
+}
