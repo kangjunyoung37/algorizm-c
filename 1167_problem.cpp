@@ -2,33 +2,32 @@
 #include<vector>
 using namespace std;
 
-vector<pair<int, int>> edge[100001];
-bool visit[100001];
-int root;
-int maxdistance = 0;
-void func(int prev,int current,int node)
+int N;
+int deep_node; 
+long long dis = 0;
+vector<pair<int, int>> map[100001];
+void dfs(int cur,int prev,long long cost)
 {
-	if (maxdistance < current)
+	if (dis < cost)
 	{
-		maxdistance = current;
-		root = node;
+		dis = cost;
+		deep_node = cur;
 	}
-	visit[node] = true;
-	for (int i = 0; i < edge[node].size(); i++)
+	for (int i = 0; i < map[cur].size();i++)
 	{
-		if (visit[edge[node][i].first])
+		if (map[cur][i].first == prev)
+		{
 			continue;
-		func(current, current + edge[node][i].second, edge[node][i].first);
-		
+		}
+		dfs(map[cur][i].first, cur, cost + map[cur][i].second);
+
 	}
-	visit[node] = false;
 
 }
 int main()
 {
 	ios_base::sync_with_stdio(false);
-	cin.tie(0); cout.tie(0);
-	int N;
+	cin.tie(NULL); cout.tie(NULL);
 	cin >> N;
 	for (int i = 0; i < N; i++)
 	{
@@ -36,19 +35,20 @@ int main()
 		cin >> a;
 		while (1)
 		{
-			int b, d;
-			cin >> b;
-			
-			if (b == -1)
+			int x, d;
+			cin >> x;
+			if (x == -1)
 			{
 				break;
 			}
 			cin >> d;
-			edge[a].push_back({ b,d });
+			map[a].push_back({ x, d });
+
 		}
+
 	}
-	func(0, 0, 1);
-	maxdistance = 0;
-	func(0, 0, root);
-	cout << maxdistance;
+	dfs(1, 0, 0);
+	dis = 0;
+	dfs(deep_node, 0, 0);
+	cout << dis ;
 }

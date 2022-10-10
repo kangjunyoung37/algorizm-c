@@ -1,72 +1,80 @@
 #include<iostream>
 #include<queue>
 #include<vector>
-#define INF 987654321
+#include<algorithm>
+#define MAX_V 805
+#define MAX_D 200001
+#define INF 1e9
 using namespace std;
-vector<pair<int, int>> graph[801];
-long long dis[801];
 
-void dijestra(int start)
+int N, E;
+int dis[MAX_V];
+vector<pair<int, int>> map[MAX_D];
+void dijstra(int start)
 {
-	fill(&dis[0], &dis[801], INF);
+	fill(&dis[0], &dis[N+1], INF);
+	
+	priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+	pq.push(make_pair(0, start));
 	dis[start] = 0;
-	priority_queue < pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> q;
-	q.push({ 0,start });
-	while (!q.empty())
+	while (!pq.empty())
 	{
-		int current = q.top().second;
-		long long distance = q.top().first;
-		q.pop();
-		for (int i = 0; i < graph[current].size(); i++)
+		int current = pq.top().second;
+		int currentdis = pq.top().first;
+		pq.pop();
+		for (int i = 0; i < map[current].size(); i++)
 		{
-			int next = graph[current][i].first;
-			long long nextdis = graph[current][i].second + distance;
+			int next = map[current][i].second;
+			int nextdis = map[current][i].first + currentdis;
+			
 			if (dis[next] > nextdis)
 			{
 				dis[next] = nextdis;
-				q.push({ nextdis,next });
+				pq.push(make_pair( nextdis, next));
 			}
-		}
-	}
-}
 
+		}
+
+	}
+
+}
 int main()
 {
-	ios_base::sync_with_stdio(false);
+	ios_base::sync_with_stdio(0);
 	cin.tie(0); cout.tie(0);
-	int N, E;
 	cin >> N >> E;
 	for (int i = 0; i < E; i++)
 	{
 		int x, y, d;
 		cin >> x >> y >> d;
-		graph[x].push_back({ y,d });
-		graph[y].push_back({ x,d });
+		map[x].push_back(make_pair(d, y));
+		map[y].push_back(make_pair(d, x));
 	}
-	int node1, node2;
-	cin >> node1 >> node2;
-	dijestra(1);
-	long long temp1;
-	long long temp2;
-	temp1 = dis[node1];
-	temp2 = dis[node2];
-	dijestra(node1);
-	temp1 += dis[node2];
-	dijestra(node2);
+	int v1, v2;
+	cin >> v1 >> v2;
+	long long temp1, temp2;
+	dijstra(1);
+	temp1 = dis[v1];
+	temp2 = dis[v2];
+
+	dijstra(v1);
+	temp1 += dis[v2];
+	dijstra(v2);
 	temp1 += dis[N];
 
-	dijestra(node2);
-	temp2 += dis[node1];
-	dijestra(node1);
+	dijstra(v2);
+	temp2 += dis[v1];
+	dijstra(v1);
 	temp2 += dis[N];
+
 	if (temp1 >= INF && temp2 >= INF)
 	{
 		cout << -1;
 	}
 	else
 	{
-		long long answer = min(temp1, temp2);
-		cout << answer;
+		cout << min(temp1, temp2);
 	}
 
+	
 }

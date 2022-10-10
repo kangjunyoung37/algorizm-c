@@ -1,58 +1,84 @@
 #include<iostream>
-#include<vector>
 #include<queue>
-#define INF 987654321
+#include<vector>
+#include <utility>
+
+
+
 using namespace std;
 
-vector<pair<int, int>> graph[20001];
-int dis[20001];
-void dijestra(int s)
+#define INF 987654321
+#define MAX_V 20001
+#define MAX_E 30001
+
+vector<pair<int, int>> graph[MAX_V];
+
+int dis[MAX_V] = { INF };
+int visited[MAX_V] = { 0 };
+
+void dijkstra(int start)
 {
-	fill(&dis[0], &dis[20001], INF);
-	dis[s] = 0;
-	priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> q;
-	q.push({ 0,s });
-	while (!q.empty())
+	priority_queue < pair<int, int>> pq;
+	pq.push(make_pair(0,start));
+	dis[start] = 0;
+	visited[start] = 1;
+	while (!pq.empty())
 	{
-		int cur = q.top().second;
-		int distance = q.top().first;
-		q.pop();
-		for (int i = 0; i < graph[cur].size(); i++)
+		int current = pq.top().second;
+		int distance = -pq.top().first;//거리가 짧은 순으로 들어갈 수 있게 음수화 시켜준다
+		pq.pop();
+		visited[current] = 1;
+		
+		for (int i = 0; i < graph[current].size(); i++)
 		{
-			int next = graph[cur][i].first;
-			int nextdis = graph[cur][i].second + distance;
-			if (dis[next] > nextdis)
-			{
-				q.push({ nextdis,next });
-				dis[next] = nextdis;
-			}
+			int Next = graph[current][i].second;
+			int Nextdis = distance + graph[current][i].first;
+
+			if (dis[Next] < Nextdis) continue;
+			if (visited[Next]) continue;
+
+			dis[Next] = Nextdis;
+			pq.push(make_pair(-Nextdis, Next));
 		}
 	}
-}
 
-int main()
+}
+int main() 
 {
 	ios_base::sync_with_stdio(false);
-	cin.tie(0); cout.tie(0);
-	int V, E;
-	cin >> V >> E;
-	int Start;
-	cin >> Start;
-	for (int i = 0; i < E; i++)
+	cin.tie(NULL); cout.tie(NULL);
+
+	int node, edge;
+	int start;
+	
+	cin >> node >> edge;
+	cin >> start;
+
+
+	for (int i = 0; i < edge; i++)
 	{
-		int x, y, d;
-		cin >> x >> y >> d;
-		graph[x].push_back({ y,d });
+		int a, b, d;
+		cin >> a >> b >> d;
+		graph[a].push_back(make_pair(d, b));
 	}
-	dijestra(Start);
-	for (int i = 1; i <= V; i++)
+	fill(&dis[0], &dis[node + 1], INF);
+	fill(&visited[0], &visited[node + 1], 0);
+
+	dijkstra(start);
+
+	for (int j = 1; j <= node; j++)
 	{
-		if (dis[i] == INF)
+		if (dis[j] == INF)
 		{
 			cout << "INF" << "\n";
-			continue;
 		}
-		cout << dis[i] << "\n";
+		else
+
+		{
+			cout << dis[j] << "\n";
+		}
 	}
+	
 
 }
+

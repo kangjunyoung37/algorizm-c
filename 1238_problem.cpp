@@ -1,70 +1,67 @@
 #include<iostream>
 #include<vector>
 #include<queue>
+#include<algorithm>
+#define MAX 1001
+#define MAX_E 10001
 #define INF 987654321
 using namespace std;
-vector<pair<int, int>> edge[1001];
-int dis[1001];
-int result[1001];
 
-void dijestra(int start)
+int dis[MAX] = { INF };
+vector<pair<int, int>> map[MAX_E + 1];
+void dij(int start)
 {
+	priority_queue<pair<int, int>> pq;
+	pq.push(make_pair(0, start));
 	dis[start] = 0;
-	priority_queue<pair<int, int>,vector<pair<int,int>>, greater<pair<int,int>>> q;
-	q.push({ 0,start });
-	while (!q.empty())
+	while (!pq.empty())
 	{
-		int current = q.top().second;
-		int distance = q.top().first;
-		q.pop();
-		for (int i = 0; i < edge[current].size(); i++)
+		int current = pq.top().second;
+		int distance = -pq.top().first;
+		pq.pop();
+		for (int i = 0; i < map[current].size(); i++)
 		{
-			int next = edge[current][i].first;
-			int nextdis = distance + edge[current][i].second;
-			if (dis[next] > nextdis)
+			int Next = map[current][i].second;
+			int Nextdis = distance+map[current][i].first;
+			if (dis[Next] > Nextdis)
 			{
-				q.push({ nextdis,next });
-				dis[next] = nextdis;
+				dis[Next] = Nextdis;
+				pq.push(make_pair(-Nextdis, Next));
 			}
+
 		}
 	}
-
 }
-
 int main()
 {
-	ios_base::sync_with_stdio(false);
+	ios_base::sync_with_stdio(0);
 	cin.tie(0); cout.tie(0);
-	fill(&dis[0], &dis[1001], INF);
 	int N, M, X;
 	cin >> N >> M >> X;
+	int max_result = 0;
 	for (int i = 0; i < M; i++)
 	{
-		int x, y, d;
-		cin >> x >> y >> d;
-		edge[x].push_back({ y,d });
-		
-	}
-	int answer = 0;
-	dijestra(X);
-	for (int i = 1; i <= N; i++)
-	{
-		result[i] = dis[i];
+		int a, b, d;
+		cin >> a >> b >> d;
+		map[a].push_back(make_pair(d,b));
 	}
 	for (int i = 1; i <= N; i++)
 	{
-		fill(&dis[0], &dis[1001], INF);
-		dijestra(i);
-		result[i] += dis[X];
-	}
-	
-	for (int i = 1; i <= N; i++)
-	{
-		if (answer < result[i])
+		fill(&dis[0], &dis[N + 1], INF);
+		dij(i);
+		int temp1 = dis[X];
+		fill(&dis[0], &dis[N + 1], INF);
+		dij(X);
+		int temp2 = dis[i];
+
+		if (max_result < temp1 + temp2)
 		{
-			answer = result[i];
+			max_result = temp1 + temp2;
 		}
+
 	}
 
-	cout << answer;
+
+	cout << max_result;
+	
 }
